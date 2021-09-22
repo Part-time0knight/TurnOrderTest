@@ -64,6 +64,7 @@ public class TurnOrderView : MonoBehaviour, ILogicObserver
             {
                 _warriorPanels.Remove(item);
                 Destroy(item.gameObject);
+                _warriorPanels.Add(Instantiate(_warriorPanel, _scrollRect.content));
                 i--;
             }
         }
@@ -104,14 +105,9 @@ public class TurnOrderView : MonoBehaviour, ILogicObserver
         while (_roundShow.Count > 0)
             RoundPanelHide();
 
-        for (int i = _warriorPanels.Count; i < _viewSize; i++)
-        {
-            _warriorPanels.Add(Instantiate(_warriorPanel, _scrollRect.content));
-        }
-
         for (int i = 0; i < _warriorPanels.Count; i++)
         {
-            int indexInOrder = (_gameLogic.Turn + i) % _gameLogic.TurnOrder.Count;
+            int indexInOrder = (_gameLogic.CurrentWarriorIndex + i) % (_gameLogic.TurnOrder.Count);
             _warriorPanels[i].WarriorSet(_gameLogic.TurnOrder[indexInOrder]);
         }
 
@@ -121,12 +117,18 @@ public class TurnOrderView : MonoBehaviour, ILogicObserver
             _warriorPanels[i].transform.SetParent(_contentHider);
             tempList.Enqueue(_warriorPanels[i]);
         }
+
+        int nextRound = 1;
         for (int i = 0; i < _warriorPanels.Count; i++)
         {
-            bool isFirstPlace = i > 0 && (_gameLogic.Turn + i) % _gameLogic.TurnOrder.Count == 0;
-            //возвращает истину когда ход воина - 1 в новом раунде
+            //bool isFirstPlace = i > 0 && (_gameLogic.Turn + i) % _gameLogic.TurnOrder.Count == 0;
+            bool isFirstPlace = i > 0 && (_gameLogic.CurrentWarriorIndex + i) % _gameLogic.TurnOrder.Count == 0;
+            //возвращает истину когда ход воина - первый в новом раунде
             if (isFirstPlace)
-                RoundPanelShow((_gameLogic.Turn + i) / _gameLogic.TurnOrder.Count + 1);
+            {
+                int round = _gameLogic.CurrentRound + ++nextRound;
+                RoundPanelShow(round);
+            }
             tempList.Dequeue().transform.SetParent(_scrollRect.content);
         }
     }

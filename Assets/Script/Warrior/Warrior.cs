@@ -33,7 +33,7 @@ public class Warrior : IWarrior
 
     public override int GetHashCode()
     {
-        return _hash;
+        return _identifier.GetHashCode();
     }
 
     private bool Equals(Warrior warrior)
