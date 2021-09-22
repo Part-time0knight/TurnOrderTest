@@ -836,7 +836,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b9c90191670291419f1430914f29276, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnOrderView: {fileID: 1875649294}
+  _turnOrderView: {fileID: 1875649294}
 --- !u!1 &1279262596
 GameObject:
   m_ObjectHideFlags: 0
@@ -1244,10 +1244,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cc9cebfe838a3741b13ff08e1bd2e14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  warriorPanel: {fileID: 1511159490212657224, guid: c6ca22ec41f49e240a2002504e87bc86, type: 3}
-  roundPanel: {fileID: 8754690548538143435, guid: 5418ea37cc0fc5f469bc7049f8732dcc, type: 3}
-  viewSize: 20
-  contentHider: {fileID: 194753341}
+  _warriorPanel: {fileID: 1511159490212657224, guid: c6ca22ec41f49e240a2002504e87bc86, type: 3}
+  _roundPanel: {fileID: 8754690548538143435, guid: 5418ea37cc0fc5f469bc7049f8732dcc, type: 3}
+  _viewSize: 20
+  _contentHider: {fileID: 194753341}
 --- !u!1 &1906912933
 GameObject:
   m_ObjectHideFlags: 0

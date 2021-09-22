@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,124 +6,138 @@ using UnityEngine.UI;
 public class TurnOrderView : MonoBehaviour, ILogicObserver 
 {
     [SerializeField]
-    private WarriorPanel warriorPanel;
+    private WarriorPanel _warriorPanel;
+
     [SerializeField]
-    private RoundPanel roundPanel;
+    private RoundPanel _roundPanel;
+
     [SerializeField]
-    private int viewSize = 20;
+    private int _viewSize = 20;
+
     [SerializeField]
-    private Transform contentHider;
-    private ScrollRect scrollRect;
-    private IGameLogic gameLogic;
-    private int turn = 0;
-    private ILogicSubject logicSubject;
-    private readonly List<WarriorPanel> warriorPanels = new List<WarriorPanel>();
-    private readonly List<RoundPanel> roundHide = new List<RoundPanel>();
-    private readonly List<RoundPanel> roundShow = new List<RoundPanel>();
-    public void Init(IGameLogic gameLogic, ILogicSubject logicSubject)
+    private Transform _contentHider;
+
+    private ScrollRect _scrollRect;
+    private IGameLogic _gameLogic;
+    private readonly List<WarriorPanel> _warriorPanels = new List<WarriorPanel>();
+    private readonly List<RoundPanel> _roundHide = new List<RoundPanel>();
+    private readonly List<RoundPanel> _roundShow = new List<RoundPanel>();
+    public void Init(IGameLogic gameLogic)
     {
-        if (!scrollRect)
-            scrollRect = GetComponent<ScrollRect>();
-        this.gameLogic = gameLogic;
-        this.logicSubject = logicSubject;
-        List<IWarrior> order = gameLogic.turnOrder;
-        for (int i = 0; i < viewSize; i++)
+        if (!_scrollRect)
+            _scrollRect = GetComponent<ScrollRect>();
+
+        _gameLogic = gameLogic;
+
+        List<IWarrior> order = new List<IWarrior>(gameLogic.TurnOrder);
+        for (int i = 0; i < _viewSize; i++)
         {
-            RoundPanel roundPanel = Instantiate(this.roundPanel, contentHider);
-            roundHide.Add(roundPanel);
-        }
-        for (int i = 0; i < viewSize; i++)
-        {
-            int roundIndex = i % order.Count;
-            if (roundIndex == 0 && i / order.Count > 0)
+            RoundPanel roundPanel = Instantiate(_roundPanel, _contentHider);
+            _roundHide.Add(roundPanel);
+
+            int roundIndex = i % order.Count;//когда он равен нулю, начинается новый раунд
+            int roundNumber = i / order.Count;//номер раунда
+            if (roundIndex == 0 && roundNumber > 0)
             {
-                RoundPanelShow(i / order.Count + 1);
+                RoundPanelShow(roundNumber + 1);
             }
-            WarriorPanel panel = Instantiate(warriorPanel, scrollRect.content);
+            
+            WarriorPanel panel = Instantiate(_warriorPanel, _scrollRect.content);
             panel.WarriorSet(order[roundIndex]);
-            warriorPanels.Add(panel);
-            panel.turn = i + 1;
+            _warriorPanels.Add(panel);
+            panel.Turn = i + 1;
         }
     }
-    private void RoundPanelShow(int round)
-    {
-        roundShow.Add(roundHide[0]);
-        roundHide[0].transform.SetParent(scrollRect.content);
-        roundHide[0].RoundSet(round);
-        roundHide[0].UpdateText();
-        roundHide.RemoveAt(0);
-    }
-    private void RoundPanelHide()
-    {
-        RoundPanel panel = roundShow[0];
-        roundShow.RemoveAt(0);
-        roundHide.Add(panel);
-        panel.transform.SetParent(contentHider);
-    }
+
     public void LogicUpdate()
     {
         MakeTurn();
         UpdateItems();
     }
-    private void MakeTurn()
-    {
-        if (gameLogic.turn % gameLogic.turnOrder.Count == 0)
-            RoundPanelHide();
-        if ((gameLogic.turn + viewSize - 1) % gameLogic.turnOrder.Count == 0)
-            RoundPanelShow((gameLogic.turn + viewSize) / gameLogic.turnOrder.Count + 1);
-        WarriorPanel warrior = warriorPanels[0];
-        warriorPanels.RemoveAt(0);
-        Destroy(warrior.gameObject);
-
-        int roundIndex = (gameLogic.turn + viewSize - 1) % gameLogic.turnOrder.Count;
-        warrior = Instantiate(warriorPanel, scrollRect.content);
-        warrior.WarriorSet(gameLogic.turnOrder[roundIndex]);
-        warriorPanels.Add(warrior);
-        turn = gameLogic.turn;
-    }
-    private void UpdateItems()
-    {
-        for (int i = 0; i < viewSize; i++)
-        {
-            WarriorPanel panel = warriorPanels[i];
-            panel.turn = i + 1 + gameLogic.turn;
-        }
-    }
 
     public void KillWarrior(IWarrior warrior)
     {
-        while (roundShow.Count > 0)
-            RoundPanelHide();
-        int deleteCount = 0;
-        for (int i = 0; i < warriorPanels.Count; i++)
+        for (int i = 0; i < _warriorPanels.Count; i++)
         {
-            WarriorPanel item = warriorPanels[i];
-            if (item.warrior == warrior)
+            WarriorPanel item = _warriorPanels[i];
+            if (item.Warrior == warrior)
             {
-                warriorPanels.Remove(item);
+                _warriorPanels.Remove(item);
                 Destroy(item.gameObject);
-                int roundIndex = (gameLogic.turn + viewSize - 2 + deleteCount++) % gameLogic.turnOrder.Count;
-                WarriorPanel panel = Instantiate(warriorPanel, scrollRect.content);
-                panel.WarriorSet(gameLogic.turnOrder[roundIndex]);
-                warriorPanels.Add(panel);
                 i--;
             }
-
         }
-        Queue<WarriorPanel> tempList = new Queue<WarriorPanel>();
-        for (int i = 0; i < warriorPanels.Count; i++)
-        {
-            warriorPanels[i].transform.SetParent(contentHider);
-            tempList.Enqueue(warriorPanels[i]);
-        }
-        for (int i = 0; i < warriorPanels.Count; i++)
-        {
-            if (i > 0 && (gameLogic.turn + i) % gameLogic.turnOrder.Count == 0)
-                RoundPanelShow((gameLogic.turn + i) / gameLogic.turnOrder.Count + 1);
-            tempList.Dequeue().transform.SetParent(scrollRect.content);
-        }
-
         UpdateItems();
+    }
 
+    private void RoundPanelShow(int round)
+    {
+        _roundShow.Add(_roundHide[0]);
+        _roundHide[0].transform.SetParent(_scrollRect.content);
+        _roundHide[0].RoundSet(round);
+        _roundHide[0].UpdateText();
+        _roundHide.RemoveAt(0);
+    }
+
+    private void RoundPanelHide()
+    {
+        RoundPanel panel = _roundShow[0];
+        _roundShow.RemoveAt(0);
+        _roundHide.Add(panel);
+        panel.transform.SetParent(_contentHider);
+    }
+
+    private void MakeTurn()
+    {
+        WarriorPanel warrior = _warriorPanels[0];
+        _warriorPanels.RemoveAt(0);
+        Destroy(warrior.gameObject);
+
+        int roundIndex = (_gameLogic.Turn + _viewSize - 1) % _gameLogic.TurnOrder.Count;
+        warrior = Instantiate(_warriorPanel, _scrollRect.content);
+        warrior.WarriorSet(_gameLogic.TurnOrder[roundIndex]);
+        _warriorPanels.Add(warrior);
+    }
+
+    private void ResetContent()
+    {
+        while (_roundShow.Count > 0)
+            RoundPanelHide();
+
+        for (int i = _warriorPanels.Count; i < _viewSize; i++)
+        {
+            _warriorPanels.Add(Instantiate(_warriorPanel, _scrollRect.content));
+        }
+
+        for (int i = 0; i < _warriorPanels.Count; i++)
+        {
+            int indexInOrder = (_gameLogic.Turn + i) % _gameLogic.TurnOrder.Count;
+            _warriorPanels[i].WarriorSet(_gameLogic.TurnOrder[indexInOrder]);
+        }
+
+        Queue<WarriorPanel> tempList = new Queue<WarriorPanel>();
+        for (int i = 0; i < _warriorPanels.Count; i++)
+        {
+            _warriorPanels[i].transform.SetParent(_contentHider);
+            tempList.Enqueue(_warriorPanels[i]);
+        }
+        for (int i = 0; i < _warriorPanels.Count; i++)
+        {
+            bool isFirstPlace = i > 0 && (_gameLogic.Turn + i) % _gameLogic.TurnOrder.Count == 0;
+            //возвращает истину когда ход воина - 1 в новом раунде
+            if (isFirstPlace)
+                RoundPanelShow((_gameLogic.Turn + i) / _gameLogic.TurnOrder.Count + 1);
+            tempList.Dequeue().transform.SetParent(_scrollRect.content);
+        }
+    }
+
+    private void UpdateItems()
+    {
+        ResetContent();
+        for (int i = 0; i < _viewSize; i++)
+        {
+            WarriorPanel panel = _warriorPanels[i];
+            panel.Turn = i + 1 + _gameLogic.Turn;
+        }
     }
 }

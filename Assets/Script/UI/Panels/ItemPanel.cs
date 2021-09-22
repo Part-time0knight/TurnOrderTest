@@ -6,9 +6,7 @@ using UnityEngine.UI;
 public abstract class ItemPanel : MonoBehaviour
 {
     [SerializeField]
-    protected Text description;
-    public virtual void UpdateText()
-    {
-        description.text = "абстрактная панель";
-    }
+    protected Text _description;
+
+    public virtual void UpdateText() => _description.text = "абстрактная панель";        
 }

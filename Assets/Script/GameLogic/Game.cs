@@ -1,27 +1,26 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Game : MonoBehaviour
 {
     [SerializeField]
-    private TurnOrderView turnOrderView;
-    private readonly GameLogic gameLogic = new GameLogic();
-    private void Awake()
-    {
-        turnOrderView.Init(gameLogic, gameLogic);
-        gameLogic.AddObserver(turnOrderView);
-        
-    }
+    private TurnOrderView _turnOrderView;
+
+    private readonly GameUnits _gameUnits = new GameUnits();
+    private GameLogic _gameLogic;
 
     public void KillNextWarrior()
     {
-        if (gameLogic.turnOrder.Count > 1)
-            gameLogic.KillWarrior(1);
+        if (_gameLogic.TurnOrder.Count > 1)
+            _gameLogic.KillWarrior((1 + _gameLogic.Turn) % _gameLogic.TurnOrder.Count);
     }
 
-    public void SkipTurn()
+    public void SkipTurn() => _gameLogic.NextTurn();
+
+    private void Awake()
     {
-        gameLogic.NextTurn();
+        _gameLogic = new GameLogic(_gameUnits);
+        _turnOrderView.Init(_gameLogic);
+        _gameLogic.AddObserver(_turnOrderView);
+
     }
 }

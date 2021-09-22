@@ -2,15 +2,16 @@ using UnityEngine;
 
 public class Fraction : IFraction
 {
-    public Color color => _color;
+    public Color FractionColor => _color;
 
-    public string name => _name;
+    public string Name => _name;
 
-    public int priority => _priority;
+    public int Priority => _priority;
 
     private Color _color;
     private string _name;
     private int _priority;
+
     public Fraction(Color color, string name, int priority)
     {
         _color = color;

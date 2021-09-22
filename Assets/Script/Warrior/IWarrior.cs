@@ -1,8 +1,10 @@
 public interface IWarrior
 {
-    public int position { get; }
-    public int speed { get; }
-    public int initiative { get; }
-    public IFraction fraction { get; }
-    public void Death();
+    int Position { get; }
+    int Speed { get; }
+    int Initiative { get; }
+
+    IFraction Fraction { get; }
+
+    void Death();
 }

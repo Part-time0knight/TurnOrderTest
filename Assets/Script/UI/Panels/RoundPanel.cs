@@ -5,12 +5,10 @@ using UnityEngine;
 public class RoundPanel : ItemPanel
 {
     [SerializeField]
-    private string text = "Раунд: ";
-    private int round = 0;
-    public void RoundSet(int round) => this.round = round;
+    private string _text = "Раунд:";
+    private int _round = 0;
 
-    public override void UpdateText()
-    {
-        description.text = text + round;
-    }
+    public void RoundSet(int round) => _round = round;
+
+    public override void UpdateText() => _description.text = $"{_text} {_round}";
 }

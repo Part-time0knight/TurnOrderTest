@@ -6,21 +6,19 @@ using UnityEngine.UI;
 public class WarriorPanel : ItemPanel
 {
     [SerializeField]
-    private Text turnText;
+    private Text _turnText;
     [SerializeField]
-    private string itemName = "Воин";
+    private string _itemName = "Воин";
     [SerializeField]
-    private string initiative = "Инициатива";
+    private string _initiative = "Инициатива";
     [SerializeField]
-    private string speed = "Скорость";
+    private string _speed = "Скорость";
 
-    public IWarrior warrior => _warrior;
-    public int turn
+    public IWarrior Warrior => _warrior;
+
+    public int Turn
     {
-        get
-        {
-            return _turn;
-        }
+        get => _turn;
         set
         {
             _turn = value;
@@ -31,22 +29,23 @@ public class WarriorPanel : ItemPanel
     private IWarrior _warrior;
     private int _turn;
     private Image image;
-    private void Awake()
-    {
-        image = GetComponent<Image>();
-    }
+
     public void WarriorSet(IWarrior warrior)
     {
         _warrior = warrior;
         float alpha = image.color.a;
-        Color fractionColor = warrior.fraction.color;
+        Color fractionColor = warrior.Fraction.FractionColor;
         image.color = new Color(fractionColor.r, fractionColor.g, fractionColor.b, alpha);
     }
+
     public override void UpdateText()
     {
-        description.text = itemName + " " + warrior.fraction.name + warrior.position
-            + ":\n" + initiative + " - " + warrior.initiative + " " + speed + " - "
-            + warrior.speed;
-        turnText.text = "" + turn;
+        _description.text =
+            $"{_itemName} {Warrior.Fraction.Name} {Warrior.Position}" +
+            $":\n{_initiative} - {Warrior.Initiative} {_speed} - {Warrior.Speed}";
+
+        _turnText.text = $"{Turn}";
     }
+
+    private void Awake() => image = GetComponent<Image>();
 }

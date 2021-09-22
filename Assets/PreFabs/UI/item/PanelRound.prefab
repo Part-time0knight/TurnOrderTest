@@ -265,5 +265,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89ce2c1cfc8529e4098c1a3a899ac3c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  description: {fileID: 8754690546842369112}
-  text: "\u0420\u0430\u0443\u043D\u0434: "
+  _description: {fileID: 8754690546842369112}
+  _text: "\u0420\u0430\u0443\u043D\u0434:"

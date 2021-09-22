@@ -1,5 +1,6 @@
 public interface ILogicSubject
 {
-    public void AddObserver(ILogicObserver logicObserver);
-    public void removeObserver(ILogicObserver logicObserver);
+    void AddObserver(ILogicObserver logicObserver);
+
+    void removeObserver(ILogicObserver logicObserver);
 }

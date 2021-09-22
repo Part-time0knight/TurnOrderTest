@@ -111,11 +111,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51b8a59a945dc284992a90381946d534, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  description: {fileID: 2718876109713613234}
-  turnText: {fileID: 8918303899501752658}
-  itemName: "\u0412\u043E\u0438\u043D"
-  initiative: "\u0418\u043D\u0438\u0446\u0438\u0430\u0442\u0438\u0432\u0430"
-  speed: "\u0421\u043A\u043E\u0440\u043E\u0441\u0442\u044C"
+  _description: {fileID: 2718876109713613234}
+  _turnText: {fileID: 8918303899501752658}
+  _itemName: "\u0412\u043E\u0438\u043D"
+  _initiative: "\u0418\u043D\u0438\u0446\u0438\u0430\u0442\u0438\u0432\u0430"
+  _speed: "\u0421\u043A\u043E\u0440\u043E\u0441\u0442\u044C"
 --- !u!1001 &6076670631759556450
 PrefabInstance:
   m_ObjectHideFlags: 0
