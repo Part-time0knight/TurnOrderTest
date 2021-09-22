@@ -16,7 +16,8 @@ public class Game : MonoBehaviour
 
     public void KillNextWarrior()
     {
-        gameLogic.KillWarrior(1);
+        if (gameLogic.turnOrder.Count > 1)
+            gameLogic.KillWarrior(1);
     }
 
     public void SkipTurn()

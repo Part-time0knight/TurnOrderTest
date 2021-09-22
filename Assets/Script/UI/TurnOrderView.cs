@@ -73,9 +73,12 @@ public class TurnOrderView : MonoBehaviour, ILogicObserver
         if ((gameLogic.turn + viewSize - 1) % gameLogic.turnOrder.Count == 0)
             RoundPanelShow((gameLogic.turn + viewSize) / gameLogic.turnOrder.Count + 1);
         WarriorPanel warrior = warriorPanels[0];
-        warrior.transform.SetParent(contentHider);
-        warrior.transform.SetParent(scrollRect.content);
         warriorPanels.RemoveAt(0);
+        Destroy(warrior.gameObject);
+
+        int roundIndex = (gameLogic.turn + viewSize - 1) % gameLogic.turnOrder.Count;
+        warrior = Instantiate(warriorPanel, scrollRect.content);
+        warrior.WarriorSet(gameLogic.turnOrder[roundIndex]);
         warriorPanels.Add(warrior);
         turn = gameLogic.turn;
     }
@@ -92,15 +95,15 @@ public class TurnOrderView : MonoBehaviour, ILogicObserver
     {
         while (roundShow.Count > 0)
             RoundPanelHide();
+        int deleteCount = 0;
         for (int i = 0; i < warriorPanels.Count; i++)
         {
             WarriorPanel item = warriorPanels[i];
             if (item.warrior == warrior)
             {
-                
                 warriorPanels.Remove(item);
                 Destroy(item.gameObject);
-                int roundIndex = (gameLogic.turn + viewSize) % gameLogic.turnOrder.Count;
+                int roundIndex = (gameLogic.turn + viewSize - 2 + deleteCount++) % gameLogic.turnOrder.Count;
                 WarriorPanel panel = Instantiate(warriorPanel, scrollRect.content);
                 panel.WarriorSet(gameLogic.turnOrder[roundIndex]);
                 warriorPanels.Add(panel);
