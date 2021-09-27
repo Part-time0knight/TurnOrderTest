@@ -2,7 +2,6 @@ using UnityEngine;
 public class Warrior : IWarrior
 {
     public int Identifier => _identifier;
-    public int Hash => _hash;
     public int Position => _position;
     public int Speed => _speed;
     public int Initiative => _initiative;
@@ -10,7 +9,6 @@ public class Warrior : IWarrior
     public IFraction Fraction => _fraction;
 
     private int _identifier;
-    private int _hash;
     private int _position;
     private int _speed;
     private int _initiative;
@@ -24,7 +22,6 @@ public class Warrior : IWarrior
         _speed = speed;
         _initiative = initiative;
         _identifier = identifier;
-        _hash = _identifier * random.Next();
     }
 
     public void Death()

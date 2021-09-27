@@ -9,6 +9,10 @@ public class GameUnits : IWarriorsBox
     public const int NUMBER_OF_FRACTION = 2;
     public const int NUMBER_OF_SOLDIER = 7;
 
+    public int OrderSize => _turnOrder.Count;
+
+    public int FractionCount => NUMBER_OF_FRACTION;
+
     private readonly int[] _speedBlueSet = { 6, 5, 5, 4, 3, 2, 1 };
     private readonly int[] _speedRedSet = { 4, 4, 5, 3, 3, 4, 1 };
     private readonly int[] _initiativeBlueSet = { 6, 8, 9, 8, 2, 4, 1 };
@@ -18,11 +22,15 @@ public class GameUnits : IWarriorsBox
     private readonly IFraction _blueFraction = new Fraction(new Color(0.5f, 0.5f, 1f), "B", 1);
     private readonly List<IWarrior> _warriors = new List<IWarrior>();
 
-    public int OrderSize => _turnOrder.Count;
-    private readonly List<IWarrior> _turnOrder = new List<IWarrior>();
+    
+    private readonly List<List<IWarrior>> _turnOrder = new List<List<IWarrior>>();
 
     public GameUnits()
     {
+        for (int i = 0; i < NUMBER_OF_FRACTION; i++)
+        {
+            _turnOrder.Add(new List<IWarrior>());
+        }
         for (int i = 0; i < NUMBER_OF_SOLDIER; i++)
         {
             IWarrior warrior = new Warrior(_redFraction, _speedRedSet[i], _initiativeRedSet[i], i, i);
@@ -35,23 +43,28 @@ public class GameUnits : IWarriorsBox
     }
     public void AddInOrder(IWarrior warrior)
     {
-        bool end = false;
-        int i;
-        for (i = 0; !end && i < _turnOrder.Count; i++ )
+        for (int j = 0; j < _turnOrder.Count; j++)
         {
-            if (CompireWarriors(_turnOrder[i], warrior))
+            bool end = false;
+            int i;
+            for (i = 0; !end && i < _turnOrder[j].Count; i++)
             {
-                end = true;
+                if (CompireWarriors(_turnOrder[j][i], warrior, j))
+                {
+                    end = true;
+                }
             }
+            if (end)
+                _turnOrder[j].Insert(--i, warrior);
+            else
+                _turnOrder[j].Add(warrior);
         }
-        if (end)
-            _turnOrder.Insert(--i, warrior);
-        else
-            _turnOrder.Add(warrior);
+
     }
     public void RemoveWarrior(IWarrior warrior)
     {
-        _turnOrder.Clear();
+        foreach (List<IWarrior> order in _turnOrder)
+            order.Clear();
         _warriors.Remove(warrior);
         foreach (IWarrior item in _warriors)
         {
@@ -59,13 +72,13 @@ public class GameUnits : IWarriorsBox
         }
     }
 
-    public IWarrior GetWarrior(int index) => _turnOrder[index];
+    //public IWarrior GetWarrior(int index, int round) => _turnOrder[index][round];
 
-    public IEnumerator<IWarrior> GetEnumerator() => _turnOrder.GetEnumerator();
+    public IEnumerator<List<IWarrior>> GetEnumerator() => _turnOrder.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    private bool CompireWarriors(IWarrior warriorInOrder, IWarrior warrior)
+    private bool CompireWarriors(IWarrior warriorInOrder, IWarrior warrior, int round)
     //возвращает true, когда warrior должен встать на место warriorInOrder, переместив второго ниже в очереди
     {
         //---проверка по инициативе
@@ -82,7 +95,7 @@ public class GameUnits : IWarriorsBox
         if (warriorInOrder.Fraction != warrior.Fraction)
         {
             //---проверка по приоритету
-            bool fractionOrder = (_turnOrder.IndexOf(warriorInOrder) + 1) % NUMBER_OF_FRACTION
+            bool fractionOrder = round % NUMBER_OF_FRACTION
                 == warrior.Fraction.Priority;
             //в зависимости от четности/нечетности позиции ходят красные или синие
             if (fractionOrder)
@@ -90,7 +103,7 @@ public class GameUnits : IWarriorsBox
             return false;
         }
         //---случай для воинов одной фракции
-            //---проверка по номеру ячейки
+        //---проверка по номеру ячейки
         if (warriorInOrder.Position < warrior.Position)
             return false;
         return true;

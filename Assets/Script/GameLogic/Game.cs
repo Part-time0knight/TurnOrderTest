@@ -10,8 +10,8 @@ public class Game : MonoBehaviour
 
     public void KillNextWarrior()
     {
-        if (_gameLogic.TurnOrder.Count > 1)
-            _gameLogic.KillWarrior((1 + _gameLogic.CurrentWarriorIndex) % _gameLogic.TurnOrder.Count);
+        if (_gameLogic.OrderLength > 1)
+            _gameLogic.KillWarrior((1 + _gameLogic.CurrentWarriorIndex) % _gameLogic.OrderLength);
     }
 
     public void SkipTurn() => _gameLogic.NextTurn();
@@ -21,6 +21,5 @@ public class Game : MonoBehaviour
         _gameLogic = new GameLogic(_gameUnits);
         _turnOrderView.Init(_gameLogic);
         _gameLogic.AddObserver(_turnOrderView);
-
     }
 }

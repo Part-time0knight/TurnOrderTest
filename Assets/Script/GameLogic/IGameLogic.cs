@@ -5,7 +5,12 @@ public interface IGameLogic
     int CurrentWarriorIndex { get; }
 
     int CurrentRound { get; }
-    IReadOnlyList<IWarrior> TurnOrder { get; }
+
+    int CurrentRoundMod { get; }
+
+    int OrderLength { get; }
+
+    IReadOnlyList<List<IWarrior>> TurnOrder { get; }
 
     int Turn { get; }
 }

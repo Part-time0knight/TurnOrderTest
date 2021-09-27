@@ -29,21 +29,22 @@ public class TurnOrderView : MonoBehaviour, ILogicObserver
 
         _gameLogic = gameLogic;
 
-        List<IWarrior> order = new List<IWarrior>(gameLogic.TurnOrder);
+        List<List<IWarrior>> order = new List<List<IWarrior>>(gameLogic.TurnOrder);
+        int round = gameLogic.CurrentRound;
         for (int i = 0; i < _viewSize; i++)
         {
             RoundPanel roundPanel = Instantiate(_roundPanel, _contentHider);
             _roundHide.Add(roundPanel);
 
-            int roundIndex = i % order.Count;//когда он равен нулю, начинается новый раунд
-            int roundNumber = i / order.Count;//номер раунда
-            if (roundIndex == 0 && roundNumber > 0)
+            int roundIndex = i % _gameLogic.OrderLength;//когда он равен нулю, начинается новый раунд
+            //int roundNumber = gameLogic.CurrentRound + i / order[gameLogic.CurrentRound].Count;//номер раунда
+            if (roundIndex == 0 && round++ > 0)
             {
-                RoundPanelShow(roundNumber + 1);
+                RoundPanelShow(round);
             }
             
             WarriorPanel panel = Instantiate(_warriorPanel, _scrollRect.content);
-            panel.WarriorSet(order[roundIndex]);
+            panel.WarriorSet(order[(round - 1) % order.Count][roundIndex]);
             _warriorPanels.Add(panel);
             panel.Turn = i + 1;
         }
@@ -57,17 +58,6 @@ public class TurnOrderView : MonoBehaviour, ILogicObserver
 
     public void KillWarrior(IWarrior warrior)
     {
-        for (int i = 0; i < _warriorPanels.Count; i++)
-        {
-            WarriorPanel item = _warriorPanels[i];
-            if (item.Warrior == warrior)
-            {
-                _warriorPanels.Remove(item);
-                Destroy(item.gameObject);
-                _warriorPanels.Add(Instantiate(_warriorPanel, _scrollRect.content));
-                i--;
-            }
-        }
         UpdateItems();
     }
 
@@ -94,9 +84,10 @@ public class TurnOrderView : MonoBehaviour, ILogicObserver
         _warriorPanels.RemoveAt(0);
         Destroy(warrior.gameObject);
 
-        int roundIndex = (_gameLogic.Turn + _viewSize - 1) % _gameLogic.TurnOrder.Count;
+        int roundIndex = (_gameLogic.Turn + _viewSize - 1) % _gameLogic.OrderLength;
+        int roundMod = (_gameLogic.CurrentRoundMod + (_gameLogic.Turn + _viewSize - 1) / _gameLogic.OrderLength) % _gameLogic.TurnOrder.Count;
         warrior = Instantiate(_warriorPanel, _scrollRect.content);
-        warrior.WarriorSet(_gameLogic.TurnOrder[roundIndex]);
+        warrior.WarriorSet(_gameLogic.TurnOrder[roundMod][roundIndex]);
         _warriorPanels.Add(warrior);
     }
 
@@ -107,8 +98,9 @@ public class TurnOrderView : MonoBehaviour, ILogicObserver
 
         for (int i = 0; i < _warriorPanels.Count; i++)
         {
-            int indexInOrder = (_gameLogic.CurrentWarriorIndex + i) % (_gameLogic.TurnOrder.Count);
-            _warriorPanels[i].WarriorSet(_gameLogic.TurnOrder[indexInOrder]);
+            int indexInOrder = (_gameLogic.CurrentWarriorIndex + i) % (_gameLogic.OrderLength);
+            int roundMod = ((_gameLogic.Turn + i) / _gameLogic.OrderLength) % _gameLogic.TurnOrder.Count;
+            _warriorPanels[i].WarriorSet(_gameLogic.TurnOrder[roundMod][indexInOrder]);
         }
 
         Queue<WarriorPanel> tempList = new Queue<WarriorPanel>();
@@ -121,8 +113,7 @@ public class TurnOrderView : MonoBehaviour, ILogicObserver
         int nextRound = 1;
         for (int i = 0; i < _warriorPanels.Count; i++)
         {
-            //bool isFirstPlace = i > 0 && (_gameLogic.Turn + i) % _gameLogic.TurnOrder.Count == 0;
-            bool isFirstPlace = i > 0 && (_gameLogic.CurrentWarriorIndex + i) % _gameLogic.TurnOrder.Count == 0;
+            bool isFirstPlace = i > 0 && (_gameLogic.CurrentWarriorIndex + i) % _gameLogic.OrderLength == 0;
             //возвращает истину когда ход воина - первый в новом раунде
             if (isFirstPlace)
             {

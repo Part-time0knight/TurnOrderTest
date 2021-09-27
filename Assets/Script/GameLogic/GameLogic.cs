@@ -5,7 +5,7 @@ public class GameLogic : IGameLogic, ILogicSubject
     public int Turn => _turn;
     private int _turn = 0;
 
-    public IReadOnlyList<IWarrior> TurnOrder => _turnOrder;
+    public IReadOnlyList<List<IWarrior>> TurnOrder => _turnOrder;
 
     public IWarrior CurrentWarrior => _currentWarrior;
     private IWarrior _currentWarrior;
@@ -14,9 +14,14 @@ public class GameLogic : IGameLogic, ILogicSubject
     public int CurrentRound => _round;
     private int _round = 0;
 
+    public int CurrentRoundMod => _roundMod;
+    private int _roundMod = 0;
+
+    public int OrderLength => _turnOrder[0].Count;
+
     private int _currentWarriorIndex = 0;
 
-    private List<IWarrior> _turnOrder = new List<IWarrior>();
+    private List<List<IWarrior>> _turnOrder;
 
     private readonly IWarriorsBox _gameUnit;
 
@@ -25,30 +30,30 @@ public class GameLogic : IGameLogic, ILogicSubject
     public GameLogic(IWarriorsBox warriorsBox)
     {
         _gameUnit = warriorsBox;
-        _turnOrder = new List<IWarrior>(_gameUnit);
-        _currentWarrior = _turnOrder[0];
+        _turnOrder = new List<List<IWarrior>>(_gameUnit);
+        _currentWarrior = _turnOrder[0][0];
     }
 
     public void KillWarrior(int index)
     {
-        IWarrior warrior = _turnOrder[index];
+        IWarrior warrior = _turnOrder[_roundMod][index];
         if (warrior == _currentWarrior)
         {
-            _currentWarriorIndex = ++index % _turnOrder.Count;
-            _currentWarrior = _turnOrder[_currentWarriorIndex];
+            _currentWarriorIndex = ++index % _turnOrder[_roundMod].Count;
+            _currentWarrior = _turnOrder[_roundMod][_currentWarriorIndex];
         }
         _gameUnit.RemoveWarrior(warrior);
-        _turnOrder = new List<IWarrior>(_gameUnit);
-        _currentWarriorIndex = _turnOrder.IndexOf(_currentWarrior);
+        _turnOrder =new List<List<IWarrior>>(_gameUnit);
+        _currentWarriorIndex = _turnOrder[_roundMod].IndexOf(_currentWarrior);
         ObserverKillWarrior(warrior);
         warrior.Death();
     }
 
     public void NextTurn()
     {
-        if (++_turn % _turnOrder.Count == 0) _round++;
-        _currentWarriorIndex = ++_currentWarriorIndex % _turnOrder.Count;
-        _currentWarrior = _turnOrder[_currentWarriorIndex];
+        if (++_turn % _turnOrder[_roundMod].Count == 0) { _roundMod = ++_round % _turnOrder.Count; }
+        _currentWarriorIndex = ++_currentWarriorIndex % _turnOrder[_roundMod].Count;
+        _currentWarrior = _turnOrder[_roundMod][_currentWarriorIndex];
         UpdateObserver();
     }
 
